@@ -9,15 +9,15 @@ using Base: @pure
 
 struct StaticDict{K, V, C}
     @inline @pure StaticDict{K, V}() where {K, V} = new{K, V, Nothing}()
-    @inline @pure StaticDict{K, V}(::Type{C}) where {K, V} where C <: StaticDict = haskey(C, Val{K}) ? additem(C, Pair{Val{K}, Val{V}}) : new{K, V, C}()
+    @inline @pure StaticDict{K, V}(::Type{C}) where {K, V} where C <: StaticDict = haskey(C, Val{K}) ? additem(C, Pair{K, V}) : new{K, V, C}()
     @inline @pure StaticDict{K, V}(::C) where {K, V} where C <: StaticDict = StaticDict{K, V}(C)
     @inline @pure StaticDict{K, V, Nothing}() where {K, V} = StaticDict{K, V}()
     @inline @pure StaticDict{K, V, C}() where {K, V, C} = StaticDict{K, V}(C)
 end
 
 @inline @pure StaticDict(::Type{Val{K}}, ::Type{Val{V}}) where K where V = StaticDict{K, V}()
-@inline @pure StaticDict(::Type{Pair{Val{K}, Val{V}}}) where K where V = StaticDict{K, V}()
-@inline @pure StaticDict(::Type{Pair{Val{K}, Val{V}}}, kvs::DataType...) where {K, V} = StaticDict{K, V}(StaticDict(kvs...))
+@inline @pure StaticDict(::Type{Pair{K, V}}) where K where V = StaticDict{K, V}()
+@inline @pure StaticDict(::Type{Pair{K, V}}, kvs::DataType...) where {K, V} = StaticDict{K, V}(StaticDict(kvs...))
 @inline @pure StaticDict(k, v) = StaticDict(Val{k}, Val{v})
 @inline @pure StaticDict(kv::Pair) = StaticDict(Val{kv[1]}, Val{kv[2]})
 @inline @pure StaticDict(kv::Pair, kvs::Pair...) = additem(StaticDict(kvs...), kv)
@@ -47,12 +47,12 @@ end
 @inline @pure haskey(::Type{StaticDict{K, V, C}}, ::Type{Val{N}}) where {K, V, N} where C <: StaticDict = haskey(C, Val{N})
 @inline @pure haskey(::C, k) where C <: StaticDict = haskey(C, Val{k})
 
-@inline @pure additem(::Type{StaticDict{Nothing, Nothing, Nothing}}, ::Type{Pair{Val{K}, Val{V}}}) where {K, V} = StaticDict{K, V}()
-@inline @pure additem(::Type{StaticDict{K, V, Nothing}}, ::Type{Pair{Val{K}, Val{NV}}}) where {K, V, NV} = StaticDict{K, NV}()
-@inline @pure additem(::Type{StaticDict{K, V, Nothing}}, ::Type{Pair{Val{NK}, Val{NV}}}) where {K, V, NK, NV} = StaticDict{K, V}(StaticDict{NK, NV, Nothing})
-@inline @pure additem(::Type{StaticDict{K, V, C}}, ::Type{Pair{Val{K}, Val{NV}}}) where {K, V, NV} where C <: StaticDict = StaticDict{K, NV}(C)
-@inline @pure additem(::Type{StaticDict{K, V, C}}, ::Type{Pair{Val{NK}, Val{NV}}}) where {K, V, NK, NV} where C <: StaticDict = StaticDict{K, V}(additem(C, Pair{Val{NK}, Val{NV}}))
-@inline @pure additem(::C, kv::Pair) where C <: StaticDict = additem(C, Pair{Val{kv[1]}, Val{kv[2]}})
+@inline @pure additem(::Type{StaticDict{Nothing, Nothing, Nothing}}, ::Type{Pair{K, V}}) where {K, V} = StaticDict{K, V}()
+@inline @pure additem(::Type{StaticDict{K, V, Nothing}}, ::Type{Pair{K, NV}}) where {K, V, NV} = StaticDict{K, NV}()
+@inline @pure additem(::Type{StaticDict{K, V, Nothing}}, ::Type{Pair{NK, NV}}) where {K, V, NK, NV} = StaticDict{K, V}(StaticDict{NK, NV, Nothing})
+@inline @pure additem(::Type{StaticDict{K, V, C}}, ::Type{Pair{K, NV}}) where {K, V, NV} where C <: StaticDict = StaticDict{K, NV}(C)
+@inline @pure additem(::Type{StaticDict{K, V, C}}, ::Type{Pair{NK, NV}}) where {K, V, NK, NV} where C <: StaticDict = StaticDict{K, V}(additem(C, Pair{NK, NV}))
+@inline @pure additem(::C, kv::Pair) where C <: StaticDict = additem(C, Pair{kv[1], kv[2]})
 
 @inline @pure tuple_cat(x::Tuple) = x
 @inline @pure tuple_cat(x::Tuple, ::Nothing) = x
