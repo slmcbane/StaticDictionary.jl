@@ -1,6 +1,6 @@
 authors = ["Sean McBane <seanmcb94@gmail.com>"]
 name = "StaticDictionary"
 uuid = "e7270f20-8f5c-11e8-0fba-c10ce26f3e43"
-version = "1.0.0"
+version = "1.0.1"
 
 [deps]
